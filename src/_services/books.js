@@ -1,4 +1,4 @@
-import API from "../_api";
+import {API} from "../_api";
 
 export const getBooks = async () => {
   const { data } = await API.get("books");
@@ -13,6 +13,16 @@ export const createBook = async (data) => {
       },
     });
     return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const showBook = async (id) => {
+  try {
+    const { data } = await API.get(`books/${id}`);
+    return data.data;
   } catch (error) {
     console.log(error);
     throw error;

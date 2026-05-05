@@ -42,7 +42,7 @@ export default function AdminLayout() {
                 <span className="sr-only">Toggle sidebar</span>
               </button>
               <Link
-                to="https://flowbite.com"
+                to="/admin"
                 className="flex items-center justify-between mr-4"
               >
                 <img
@@ -134,7 +134,7 @@ export default function AdminLayout() {
             <ul className="space-y-2">
               <li>
                 <Link
-                  to="admin"
+                  to="/admin"
                   className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
                 >
                   <svg
@@ -216,9 +216,7 @@ export default function AdminLayout() {
                   <span className="ml-3">Genres</span>
                 </Link>
               </li>
-            </ul>
 
-            <ul className="pt-5 mt-5 space-y-2 borderT border-gray-200 dark:border-gray-700">
               <li>
                 <Link
                   to="/admin/books"

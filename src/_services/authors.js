@@ -1,4 +1,4 @@
-import API from "../_api";
+import { API } from "../_api";
 
 export const getAuthors = async () => {
   const { data } = await API.get("authors");
@@ -12,7 +12,7 @@ export const createAuthor = async (authorData) => {
   if (authorData.photo) {
     formData.append("photo", authorData.photo);
   }
-  
+
   const { data } = await API.post("authors", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -29,7 +29,7 @@ export const updateAuthor = async (id, authorData) => {
     formData.append("photo", authorData.photo);
   }
   formData.append("_method", "PUT");
-  
+
   const { data } = await API.post(`authors/${id}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",

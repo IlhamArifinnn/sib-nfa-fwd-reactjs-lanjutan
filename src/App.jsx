@@ -15,6 +15,7 @@ import EditGenre from "./pages/admin/genres/edit";
 import AdminAuthors from "./pages/admin/authors";
 import CreateAuthor from "./pages/admin/authors/create";
 import EditAuthor from "./pages/admin/authors/edit";
+import ShowBook from "./pages/public/books/show";
 
 function App() {
   return (
@@ -23,7 +24,10 @@ function App() {
         {/* public */}
         <Route element={<PublicLayout />}>
           <Route index element={<Home />} />
-          <Route path="books" element={<Books />} />
+          <Route path="books">
+            <Route index element={<Books />} />
+            <Route path="show/:id" element={<ShowBook />} />
+          </Route>
         </Route>
 
         {/* auth */}
