@@ -13,7 +13,7 @@ export const createAuthor = async (authorData) => {
     formData.append("photo", authorData.photo);
   }
 
-  const { data } = await API.post("authors", formData, {
+  const { data } = await APII.post("authors", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },

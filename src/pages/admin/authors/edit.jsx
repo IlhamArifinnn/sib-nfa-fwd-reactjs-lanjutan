@@ -34,7 +34,7 @@ export default function EditAuthor() {
           setPhotoPreview(
             author.photo.startsWith("http")
               ? author.photo
-              : `http://localhost:8000/storage/${author.photo}`
+              : `http://localhost:8000/storage/${author.photo}`,
           );
         }
       } else {
@@ -157,14 +157,14 @@ export default function EditAuthor() {
               >
                 Foto Author
               </label>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 justify-center">
                 <input
                   type="file"
                   id="photo"
                   name="photo"
                   onChange={handlePhotoChange}
                   accept="image/*"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
                 />
                 {photoPreview && (
                   <img

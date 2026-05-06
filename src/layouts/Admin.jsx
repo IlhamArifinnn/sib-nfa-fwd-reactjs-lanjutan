@@ -1,6 +1,37 @@
-import { Link, Outlet } from "react-router";
+import { useEffect } from "react";
+import { Link, Outlet, useNavigate } from "react-router";
+import { logout, useDecodeToken } from "../_services/auth";
 
 export default function AdminLayout() {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("accessToken");
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  const decodedData = useDecodeToken(token);
+
+  useEffect(() => {
+    if (!token || !decodedData || !decodedData.success) {
+      navigate("/login");
+    }
+
+    if (!userInfo) {
+      navigate("/login");
+      return;
+    }
+
+    const role = userInfo.role;
+    if (!role || role !== "admin") {
+      navigate("/");
+    }
+  }, [token, decodedData, userInfo, navigate]);
+
+  const handleLogout = async () => {
+    if (token) {
+      await logout({ token });
+      localStorage.removeItem("userInfo");
+    }
+    navigate("/login");
+  };
+
   return (
     <>
       <div className="antialiased bg-gray-50 dark:bg-gray-900">
@@ -78,6 +109,13 @@ export default function AdminLayout() {
                 </svg>
               </button>
 
+              <Link
+                to="/"
+                className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2  focus:outline-none dark:focus:ring-gray-800"
+              >
+                {userInfo.name}
+              </Link>
+
               <button
                 type="button"
                 className="flex mx-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
@@ -110,12 +148,12 @@ export default function AdminLayout() {
                   aria-labelledby="dropdown"
                 >
                   <li>
-                    <Link
-                      to="#"
+                    <button
+                      onClick={handleLogout}
                       className="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                     >
                       Sign out
-                    </Link>
+                    </button>
                   </li>
                 </ul>
               </div>
@@ -280,6 +318,14 @@ export default function AdminLayout() {
                   </svg>
                   <span className="ml-3">Help</span>
                 </Link>
+              </li>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-red-100 dark:hover:bg-red-600 dark:text-white group"
+                >
+                  <span className="ml-3">Logout</span>
+                </button>
               </li>
             </ul>
           </div>
