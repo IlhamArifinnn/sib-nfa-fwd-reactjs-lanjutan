@@ -13,9 +13,10 @@ export const createAuthor = async (authorData) => {
     formData.append("photo", authorData.photo);
   }
 
-  const { data } = await APII.post("authors", formData, {
+  const { data } = await API.post("authors", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
     },
   });
   return data.data;
@@ -33,12 +34,17 @@ export const updateAuthor = async (id, authorData) => {
   const { data } = await API.post(`authors/${id}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
     },
   });
   return data.data;
 };
 
 export const deleteAuthor = async (id) => {
-  const { data } = await API.delete(`authors/${id}`);
+  const { data } = await API.delete(`authors/${id}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    },
+  });
   return data;
 };
