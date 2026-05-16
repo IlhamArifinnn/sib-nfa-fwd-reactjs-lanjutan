@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { showBook } from "../../../_services/books";
-import { STORAGE } from "../../../_api";
 import { createTransaction } from "../../../_services/transactions";
 
 export default function ShowBook() {
@@ -15,6 +14,24 @@ export default function ShowBook() {
   const [submitMessage, setSubmitMessage] = useState({ type: null, text: "" });
 
   const accessToken = localStorage.getItem("accessToken");
+
+  const getImageUrl = (coverPath) => {
+    if (!coverPath) return "https://via.placeholder.com/300?text=No+Image";
+    if (coverPath.startsWith("http")) return coverPath;
+    return `http://localhost:8000/storage/${coverPath}`;
+  };
+
+  const handleIncrement = () => {
+    if (quantity < book.stock) {
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const handleDecrement = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
+  };
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -130,19 +147,17 @@ export default function ShowBook() {
 
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
             <div className="shrink-0 max-w-md lg:max-w-lg mx-auto">
-              {book.image_url ? (
+              <div className="relative w-full aspect-[3/4] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center">
                 <img
-                  className="w-full rounded-lg"
-                  src={`${STORAGE}/${book.image_url}`}
+                  className="w-full h-full object-cover"
+                  src={getImageUrl(book.cover_photo)}
                   alt={book.title}
+                  onError={(e) => {
+                    e.target.src =
+                      "https://via.placeholder.com/300?text=No+Image";
+                  }}
                 />
-              ) : (
-                <div className="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                  <p className="text-gray-500 dark:text-gray-400">
-                    No image available
-                  </p>
-                </div>
-              )}
+              </div>
             </div>
 
             <div className="mt-6 sm:mt-8 lg:mt-0">
@@ -167,7 +182,10 @@ export default function ShowBook() {
 
               <div className="mt-4 sm:items-center sm:gap-4 sm:flex">
                 <p className="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white">
-                  ${parseFloat(book.price).toFixed(2)}
+                  Rp
+                  {parseFloat(book.price).toLocaleString("id-ID", {
+                    minimumFractionDigits: 0,
+                  })}
                 </p>
 
                 {book.stock !== undefined && (
@@ -212,23 +230,69 @@ export default function ShowBook() {
                     >
                       Jumlah Pembelian
                     </label>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="number"
-                        name="quantity"
-                        id="quantity"
-                        min="1"
-                        max={book.stock}
-                        value={quantity}
-                        onChange={(e) =>
-                          setQuantity(parseInt(e.target.value) || 1)
-                        }
-                        className="block w-20 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white transition-all"
-                        disabled={book.stock === 0 || isSubmitting}
-                      />
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={handleDecrement}
+                          disabled={
+                            quantity <= 1 || book.stock === 0 || isSubmitting
+                          }
+                          className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:bg-gray-100 dark:disabled:bg-gray-700 disabled:text-gray-400 dark:disabled:text-gray-600 text-gray-700 dark:text-gray-300 px-3 py-2 font-semibold transition-colors"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          name="quantity"
+                          id="quantity"
+                          min="1"
+                          max={book.stock}
+                          value={quantity}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "") {
+                              setQuantity("");
+                            } else {
+                              const num = parseInt(val);
+                              if (
+                                !isNaN(num) &&
+                                num >= 1 &&
+                                num <= book.stock
+                              ) {
+                                setQuantity(num);
+                              }
+                            }
+                          }}
+                          onBlur={(e) => {
+                            if (
+                              e.target.value === "" ||
+                              parseInt(e.target.value) < 1
+                            ) {
+                              setQuantity(1);
+                            }
+                          }}
+                          className="w-16 px-2 py-2 text-center text-gray-900 dark:text-white bg-white dark:bg-gray-800 border-0 focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-semibold"
+                          disabled={book.stock === 0 || isSubmitting}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleIncrement}
+                          disabled={
+                            quantity >= book.stock ||
+                            book.stock === 0 ||
+                            isSubmitting
+                          }
+                          className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:bg-gray-100 dark:disabled:bg-gray-700 disabled:text-gray-400 dark:disabled:text-gray-600 text-gray-700 dark:text-gray-300 px-3 py-2 font-semibold transition-colors"
+                        >
+                          +
+                        </button>
+                      </div>
                       <span className="text-sm text-gray-600 dark:text-gray-400">
                         Stok tersedia:{" "}
-                        <span className="font-semibold">{book.stock}</span>
+                        <span className="font-semibold text-gray-900 dark:text-white">
+                          {book.stock}
+                        </span>
                       </span>
                     </div>
                   </div>

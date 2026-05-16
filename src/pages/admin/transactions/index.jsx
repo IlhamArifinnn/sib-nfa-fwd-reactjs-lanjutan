@@ -64,7 +64,7 @@ export default function AdminTransactions() {
                 Transaction Management
               </h1>
             </div>
-            <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+            <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 shrink-0">
               <button
                 onClick={fetchData}
                 className="flex items-center justify-center text-gray-700 bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-800"
@@ -91,6 +91,9 @@ export default function AdminTransactions() {
             <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
+                  <th scope="col" className="px-4 py-3">
+                    #
+                  </th>
                   <th scope="col" className="px-4 py-3">
                     Order Number
                   </th>
@@ -122,11 +125,12 @@ export default function AdminTransactions() {
                     </td>
                   </tr>
                 ) : transactions.length > 0 ? (
-                  transactions.map((transaction) => (
+                  transactions.map((transaction, index) => (
                     <tr
                       key={transaction.id}
                       className="border-b dark:border-gray-700"
                     >
+                      <td className="px-4 py-3">{index + 1}</td>{" "}
                       <th
                         scope="row"
                         className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"

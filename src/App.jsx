@@ -1,5 +1,6 @@
 import PublicLayout from "./layouts/Public";
 import Home from "./pages/public/home";
+import About from "./pages/public/about";
 import Books from "./pages/public/books";
 import { Route, Routes } from "react-router";
 import Login from "./pages/auth/login";
@@ -19,7 +20,6 @@ import AdminUsers from "./pages/admin/users";
 import AdminTransactions from "./pages/admin/transactions";
 import ShowBook from "./pages/public/books/show";
 import { ThemeProvider } from "./context/ThemeContext";
-import About from "./pages/public/about";
 
 function App() {
   return (

@@ -53,7 +53,7 @@ const About = () => {
             </h2>
             <div className="space-y-6">
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
+                <div className="shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
                   <span className="text-2xl">🎯</span>
                 </div>
                 <div>
@@ -68,7 +68,7 @@ const About = () => {
                 </div>
               </div>
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
+                <div className="shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
                   <span className="text-2xl">🚀</span>
                 </div>
                 <div>
@@ -119,7 +119,7 @@ const About = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
             <div key={index} className="text-center group">
-              <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4 group-hover:scale-105 transition-transform duration-300">
+              <div className="w-20 h-20 bg-linear-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4 group-hover:scale-105 transition-transform duration-300">
                 {feature.icon}
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
@@ -135,7 +135,7 @@ const About = () => {
 
       {/* CTA Section */}
       <section className="py-10 lg:py-18 px-4 mx-auto max-w-6xl">
-        <div className="bg-gradient-to-r from-primary-600/80 to-primary-800/80 dark:from-primary-800/80 dark:to-primary-900/80 rounded-2xl p-8 lg:p-12 text-center text-white">
+        <div className="bg-linear-to-r from-primary-600/80 to-primary-800/80 dark:from-primary-800/80 dark:to-primary-900/80 rounded-2xl p-8 lg:p-12 text-center text-white">
           <h2 className="text-3xl lg:text-4xl font-bold mb-4">
             Siap Memulai Perjalanan Membaca Anda?
           </h2>

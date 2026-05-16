@@ -110,7 +110,7 @@ export default function Books() {
                   key={book.id}
                   className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 overflow-hidden flex flex-col h-full"
                 >
-                  <div className="relative w-full aspect-[3/4] bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <div className="relative w-full aspect-3/4 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center overflow-hidden shrink-0">
                     <a
                       href={`/books/show/${book.id}`}
                       className="w-full h-full flex items-center justify-center"
@@ -126,7 +126,7 @@ export default function Books() {
                       />
                     </a>
                   </div>
-                  <div className="pt-4 flex flex-col flex-grow">
+                  <div className="pt-4 flex flex-col grow">
                     <a
                       href={`/books/show/${book.id}`}
                       className="text-sm font-semibold leading-tight text-gray-900 hover:underline dark:text-white line-clamp-2"

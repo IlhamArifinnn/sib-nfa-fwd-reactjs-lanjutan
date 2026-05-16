@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { register } from "../../_services/auth";
-import { MoveLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
-      <div className="w-full max-w-[440px]">
+      <div className="w-full max-w-110">
         {/* Card */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 space-y-8">
           {/* Card Header */}
@@ -348,7 +348,7 @@ const Register = () => {
               to={"/"}
               className="flex items-center gap-1 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-500"
             >
-              <MoveLeft /> Back to Home
+              <ChevronLeft /> Back to Home
             </Link>
           </form>
 

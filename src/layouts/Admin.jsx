@@ -1,14 +1,28 @@
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, Outlet, useNavigate } from "react-router";
 import { logout, useDecodeToken } from "../_services/auth";
 import ThemeToggle from "../components/ThemeToggle";
-import { UserRound } from "lucide-react";
+import {
+  UserRound,
+  Menu,
+  Search,
+  BarChart3,
+  Users,
+  BookOpen,
+  Tag,
+  BookMarked,
+  ShoppingCart,
+  HelpCircle,
+  LogOut,
+} from "lucide-react";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   const decodedData = useDecodeToken(token);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     if (!token || !decodedData || !decodedData.success) {
@@ -25,6 +39,21 @@ export default function AdminLayout() {
       navigate("/");
     }
   }, [token, decodedData, userInfo, navigate]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isDropdownOpen]);
 
   const handleLogout = async () => {
     if (token) {
@@ -46,32 +75,7 @@ export default function AdminLayout() {
                 aria-controls="drawer-navigation"
                 className="p-2 mr-2 text-gray-600 rounded-lg cursor-pointer md:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
               >
-                <svg
-                  aria-hidden="true"
-                  className="w-6 h-6"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clipRule="evenodd"
-                  ></path>
-                </svg>
-                <svg
-                  aria-hidden="true"
-                  className="hidden w-6 h-6"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  ></path>
-                </svg>
+                <Menu size={24} />
                 <span className="sr-only">Toggle sidebar</span>
               </button>
               <Link
@@ -92,19 +96,7 @@ export default function AdminLayout() {
                 className="p-2 mr-1 text-gray-500 rounded-lg md:hidden hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
               >
                 <span className="sr-only">Toggle search</span>
-                <svg
-                  aria-hidden="true"
-                  className="w-6 h-6"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    clipRule="evenodd"
-                    fillRule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                  ></path>
-                </svg>
+                <Search size={24} />
               </button>
 
               <ThemeToggle />
@@ -118,42 +110,50 @@ export default function AdminLayout() {
 
               <button
                 type="button"
-                className="flex mx-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center justify-center p-2 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 hover:bg-gray-700 transition-colors"
                 id="user-menu-button"
-                aria-expanded="false"
-                data-dropdown-toggle="dropdown"
+                aria-expanded={isDropdownOpen}
               >
                 <span className="sr-only">Open user menu</span>
-                <UserRound />
+                <UserRound size={24} className="text-white" />
               </button>
 
-              {/* <!-- Dropdown menu --> */}
-              <div
-                className="hidden z-50 my-4 w-56 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl"
-                id="dropdown"
-              >
-                <div className="py-3 px-4">
-                  <span className="block text-sm font-semibold text-gray-900 dark:text-white">
-                    {userInfo.name}
-                  </span>
-                  <span className="block text-sm text-gray-900 truncate dark:text-white">
-                    {userInfo.email}
-                  </span>
-                </div>
-                <ul
-                  className="py-1 text-gray-700 dark:text-gray-300"
-                  aria-labelledby="dropdown"
+              {/* Dropdown menu */}
+              {isDropdownOpen && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute top-16 right-4 z-50 w-56 text-base list-none bg-white rounded-lg divide-y divide-gray-100 shadow-lg dark:bg-gray-700 dark:divide-gray-600"
+                  role="menu"
                 >
-                  <li>
-                    <button
-                      onClick={handleLogout}
-                      className="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                    >
-                      Logout
-                    </button>
-                  </li>
-                </ul>
-              </div>
+                  <div className="py-3 px-4">
+                    <span className="block text-sm font-semibold text-gray-900 dark:text-white">
+                      {userInfo?.name}
+                    </span>
+                    <span className="block text-sm text-gray-600 truncate dark:text-gray-300">
+                      {userInfo?.email}
+                    </span>
+                  </div>
+                  <ul
+                    className="py-2 text-gray-700 dark:text-gray-300"
+                    role="menu"
+                  >
+                    <li>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsDropdownOpen(false);
+                        }}
+                        className="w-full text-left flex items-center gap-2 py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white transition-colors"
+                        role="menuitem"
+                      >
+                        <LogOut size={16} />
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         </nav>
@@ -172,16 +172,10 @@ export default function AdminLayout() {
                   to="/admin"
                   className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
                 >
-                  <svg
-                    aria-hidden="true"
-                    className="w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path>
-                    <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path>
-                  </svg>
+                  <BarChart3
+                    size={24}
+                    className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                  />
                   <span className="ml-3">Overview</span>
                 </Link>
               </li>
@@ -190,20 +184,10 @@ export default function AdminLayout() {
                   to="/admin/users"
                   className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
                 >
-                  <svg
-                    aria-hidden="true"
-                    className="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                    <path
-                      fillRule="evenodd"
-                      d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
+                  <Users
+                    size={24}
+                    className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                  />
                   <span className="ml-3">Users</span>
                 </Link>
               </li>
@@ -212,20 +196,10 @@ export default function AdminLayout() {
                   to="/admin/authors"
                   className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
                 >
-                  <svg
-                    aria-hidden="true"
-                    className="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                    <path
-                      fillRule="evenodd"
-                      d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
+                  <BookOpen
+                    size={24}
+                    className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                  />
                   <span className="ml-3">Authors</span>
                 </Link>
               </li>
@@ -234,20 +208,10 @@ export default function AdminLayout() {
                   to="/admin/genres"
                   className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
                 >
-                  <svg
-                    aria-hidden="true"
-                    className="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                    <path
-                      fillRule="evenodd"
-                      d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
+                  <Tag
+                    size={24}
+                    className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                  />
                   <span className="ml-3">Genres</span>
                 </Link>
               </li>
@@ -257,20 +221,10 @@ export default function AdminLayout() {
                   to="/admin/books"
                   className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
                 >
-                  <svg
-                    aria-hidden="true"
-                    className="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                    <path
-                      fillRule="evenodd"
-                      d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
+                  <BookMarked
+                    size={24}
+                    className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                  />
                   <span className="ml-3">Books</span>
                 </Link>
               </li>
@@ -279,19 +233,10 @@ export default function AdminLayout() {
                   to="/admin/transactions"
                   className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
                 >
-                  <svg
-                    aria-hidden="true"
-                    className="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
+                  <ShoppingCart
+                    size={24}
+                    className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                  />
                   <span className="ml-3">Transaction</span>
                 </Link>
               </li>
@@ -300,27 +245,22 @@ export default function AdminLayout() {
                   to="#"
                   className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
                 >
-                  <svg
-                    aria-hidden="true"
-                    className="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-2 0c0 .993-.241 1.929-.668 2.754l-1.524-1.525a3.997 3.997 0 00.078-2.183l1.562-1.562C15.802 8.249 16 9.1 16 10zm-5.165 3.913l1.58 1.58A5.98 5.98 0 0110 16a5.976 5.976 0 01-2.516-.552l1.562-1.562a4.006 4.006 0 001.789.027zm-4.677-2.796a4.002 4.002 0 01-.041-2.08l-.08.08-1.53-1.533A5.98 5.98 0 004 10c0 .954.223 1.856.619 2.657l1.54-1.54zm1.088-6.45A5.974 5.974 0 0110 4c.954 0 1.856.223 2.657.619l-1.54 1.54a4.002 4.002 0 00-2.346.033L7.246 4.668zM12 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
+                  <HelpCircle
+                    size={24}
+                    className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                  />
                   <span className="ml-3">Help</span>
                 </Link>
               </li>
               <li>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-red-100 dark:hover:bg-red-600 dark:text-white group"
+                  className="w-full flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-red-100 dark:hover:bg-red-600 dark:text-white group"
                 >
+                  <LogOut
+                    size={24}
+                    className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                  />
                   <span className="ml-3">Logout</span>
                 </button>
               </li>
