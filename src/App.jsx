@@ -1,5 +1,5 @@
 import PublicLayout from "./layouts/Public";
-import Home from "./pages/public/index";
+import Home from "./pages/public/home";
 import Books from "./pages/public/books";
 import { Route, Routes } from "react-router";
 import Login from "./pages/auth/login";
@@ -15,15 +15,21 @@ import EditGenre from "./pages/admin/genres/edit";
 import AdminAuthors from "./pages/admin/authors";
 import CreateAuthor from "./pages/admin/authors/create";
 import EditAuthor from "./pages/admin/authors/edit";
+import AdminUsers from "./pages/admin/users";
+import AdminTransactions from "./pages/admin/transactions";
 import ShowBook from "./pages/public/books/show";
+import { ThemeProvider } from "./context/ThemeContext";
+import About from "./pages/public/about";
 
 function App() {
   return (
-    <>
+    <ThemeProvider>
       <Routes>
         {/* public */}
         <Route element={<PublicLayout />}>
           <Route index element={<Home />} />
+          <Route path="/tentang" element={<About />} />
+
           <Route path="books">
             <Route index element={<Books />} />
             <Route path="show/:id" element={<ShowBook />} />
@@ -55,9 +61,17 @@ function App() {
             <Route path="create" element={<CreateAuthor />} />
             <Route path="edit/:id" element={<EditAuthor />} />
           </Route>
+
+          <Route path="users">
+            <Route index element={<AdminUsers />} />
+          </Route>
+
+          <Route path="transactions">
+            <Route index element={<AdminTransactions />} />
+          </Route>
         </Route>
       </Routes>
-    </>
+    </ThemeProvider>
   );
 }
 

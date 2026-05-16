@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { Link, Outlet, useNavigate } from "react-router";
 import { logout, useDecodeToken } from "../_services/auth";
+import ThemeToggle from "../components/ThemeToggle";
+import { UserRound } from "lucide-react";
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -76,13 +78,9 @@ export default function AdminLayout() {
                 to="/admin"
                 className="flex items-center justify-between mr-4"
               >
-                <img
-                  src="https://flowbite.s3.amazonaws.com/logo.svg"
-                  className="mr-3 h-8"
-                  alt="Flowbite Logo"
-                />
-                <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
-                  Flowbite
+                <img src="/logo.png" className="mr-3 h-8" alt="Flowbite Logo" />
+                <span className="self-center text-2xl font-semibold whitespace-nowrap text-slate-800 dark:text-white">
+                  PinBooks
                 </span>
               </Link>
             </div>
@@ -109,6 +107,8 @@ export default function AdminLayout() {
                 </svg>
               </button>
 
+              <ThemeToggle />
+
               <Link
                 to="/"
                 className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2  focus:outline-none dark:focus:ring-gray-800"
@@ -124,12 +124,9 @@ export default function AdminLayout() {
                 data-dropdown-toggle="dropdown"
               >
                 <span className="sr-only">Open user menu</span>
-                <img
-                  className="w-8 h-8 rounded-full"
-                  src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/michael-gough.png"
-                  alt="user photo"
-                />
+                <UserRound />
               </button>
+
               {/* <!-- Dropdown menu --> */}
               <div
                 className="hidden z-50 my-4 w-56 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl"
@@ -137,10 +134,10 @@ export default function AdminLayout() {
               >
                 <div className="py-3 px-4">
                   <span className="block text-sm font-semibold text-gray-900 dark:text-white">
-                    Neil Sims
+                    {userInfo.name}
                   </span>
                   <span className="block text-sm text-gray-900 truncate dark:text-white">
-                    name@flowbite.com
+                    {userInfo.email}
                   </span>
                 </div>
                 <ul
@@ -152,7 +149,7 @@ export default function AdminLayout() {
                       onClick={handleLogout}
                       className="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                     >
-                      Sign out
+                      Logout
                     </button>
                   </li>
                 </ul>

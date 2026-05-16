@@ -1,8 +1,12 @@
 import { API } from "../_api";
 
-export const getBooks = async (params = {}) => {
+export const getUsers = async () => {
   try {
-    const { data } = await API.get("books", { params });
+    const { data } = await API.get("users", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
     return data.data;
   } catch (error) {
     console.log(error);
@@ -10,11 +14,24 @@ export const getBooks = async (params = {}) => {
   }
 };
 
-export const createBook = async (data) => {
+export const showUser = async (id) => {
   try {
-    const response = await API.post("books", data, {
+    const { data } = await API.get(`users/${id}`, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+    return data.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const updateUser = async (id, userData) => {
+  try {
+    const response = await API.put(`users/${id}`, userData, {
+      headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
@@ -25,35 +42,9 @@ export const createBook = async (data) => {
   }
 };
 
-export const showBook = async (id) => {
+export const deleteUser = async (id) => {
   try {
-    const { data } = await API.get(`books/${id}`);
-    return data.data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const updateBook = async (id, data) => {
-  try {
-    data.append("_method", "PUT");
-    const response = await API.post(`books/${id}`, data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const deleteBook = async (id) => {
-  try {
-    const response = await API.delete(`books/${id}`, {
+    const response = await API.delete(`users/${id}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
