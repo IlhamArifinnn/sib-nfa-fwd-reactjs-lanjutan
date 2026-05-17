@@ -22,6 +22,7 @@ export default function AdminLayout() {
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   const decodedData = useDecodeToken(token);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -56,11 +57,16 @@ export default function AdminLayout() {
   }, [isDropdownOpen]);
 
   const handleLogout = async () => {
-    if (token) {
-      await logout({ token });
-      localStorage.removeItem("userInfo");
+    setIsLoggingOut(true);
+    try {
+      if (token) {
+        await logout({ token });
+        localStorage.removeItem("userInfo");
+      }
+    } finally {
+      navigate("/login");
+      setIsLoggingOut(false);
     }
-    navigate("/login");
   };
 
   return (
@@ -94,12 +100,12 @@ export default function AdminLayout() {
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center justify-center p-2 text-sm mx-2 bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 hover:bg-gray-700 transition-colors"
+                className="flex items-center justify-center p-2 text-sm mx-2 bg-gray-100 dark:bg-gray-600 text-slate-700 dark:text-gray-300 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 "
                 id="user-menu-button"
                 aria-expanded={isDropdownOpen}
               >
                 <span className="sr-only">Open user menu</span>
-                <UserRound size={24} className="text-white" />
+                <UserRound size={24} className="" />
               </button>
 
               {/* Dropdown menu */}
@@ -127,11 +133,16 @@ export default function AdminLayout() {
                           handleLogout();
                           setIsDropdownOpen(false);
                         }}
-                        className="w-full text-left flex items-center gap-2 py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white transition-colors"
+                        disabled={isLoggingOut}
+                        className={`text-left gap-2 py-2 px-4 text-sm w-full flex items-center p-2 font-medium text-gray-900 rounded-lg transition duration-75 group ${
+                          isLoggingOut
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:bg-red-100 dark:hover:bg-red-500 dark:text-white"
+                        }`}
                         role="menuitem"
                       >
                         <LogOut size={16} />
-                        Logout
+                        {isLoggingOut ? "Logging out..." : "Logout"}
                       </button>
                     </li>
                   </ul>
@@ -238,13 +249,18 @@ export default function AdminLayout() {
               <li>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-red-100 dark:hover:bg-red-600 dark:text-white group"
+                  disabled={isLoggingOut}
+                  className={`w-full flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 group ${
+                    isLoggingOut
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-red-100 dark:hover:bg-red-500 dark:text-white"
+                  }`}
                 >
                   <LogOut
                     size={24}
                     className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                   />
-                  <span className="ml-3">Logout</span>
+                  <span className="ml-3">{isLoggingOut ? "Logging out..." : "Logout"}</span>
                 </button>
               </li>
             </ul>
