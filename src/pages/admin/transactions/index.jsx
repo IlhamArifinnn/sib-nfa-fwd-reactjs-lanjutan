@@ -1,12 +1,12 @@
+// src/pages/admin/transactions/index.jsx
 import { useEffect, useState } from "react";
 import { getTransactions } from "../../../_services/transactions";
-import { getBooks } from "../../../_services/books";
 
 export default function AdminTransactions() {
   const [transactions, setTransactions] = useState([]);
-  const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [activeDetail, setActiveDetail] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -15,12 +15,9 @@ export default function AdminTransactions() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [transactionsData, booksData] = await Promise.all([
-        getTransactions(),
-        getBooks(),
-      ]);
+      const transactionsData = await getTransactions();
+      console.log("Transactions data:", transactionsData); // Untuk debugging
       setTransactions(transactionsData);
-      setBooks(booksData);
     } catch (error) {
       console.error("Error fetching data:", error);
       alert("Gagal mengambil data transaksi");
@@ -29,16 +26,13 @@ export default function AdminTransactions() {
     }
   };
 
-  const getBookTitle = (id) => {
-    const book = books.find((b) => b.id === id);
-    return book ? book.title : "Unknown Book";
-  };
-
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("id-ID", {
       year: "numeric",
       month: "long",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -50,31 +44,66 @@ export default function AdminTransactions() {
     }).format(price);
   };
 
-  const toggleDropdown = (id) => {
-    setOpenDropdownId((prevId) => (prevId === id ? null : id));
-  };
+  const filteredTransactions = transactions.filter(
+    (transaction) =>
+      transaction.order_number
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      transaction.book?.title
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      transaction.customer?.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <>
-      <section className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
-        <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
-            <div className="w-full md:w-1/2">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Transaction Management
-              </h1>
-            </div>
-            <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 shrink-0">
-              <button
-                onClick={fetchData}
-                className="flex items-center justify-center text-gray-700 bg-gray-100 hover:bg-gray-200 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-800"
-              >
+    <section className="bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 min-h-screen">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Manajemen Transaksi
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Kelola data peminjaman buku
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          {/* Header with search and refresh */}
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="relative flex-1 max-w-md">
                 <svg
-                  className="h-3.5 w-3.5 mr-2"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Cari order number, judul buku, atau nama customer..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <button
+                onClick={fetchData}
+                className="inline-flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
                   <path
                     strokeLinecap="round"
@@ -87,125 +116,336 @@ export default function AdminTransactions() {
               </button>
             </div>
           </div>
+
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 dark:bg-gray-700/50">
                 <tr>
-                  <th scope="col" className="px-4 py-3">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                     #
                   </th>
-                  <th scope="col" className="px-4 py-3">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                     Order Number
                   </th>
-                  <th scope="col" className="px-4 py-3">
-                    Book
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Customer
                   </th>
-                  <th scope="col" className="px-4 py-3">
-                    Quantity
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Buku
                   </th>
-                  <th scope="col" className="px-4 py-3">
-                    Total Amount
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Jumlah
                   </th>
-                  <th scope="col" className="px-4 py-3">
-                    Customer ID
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Total
                   </th>
-                  <th scope="col" className="px-4 py-3">
-                    Date
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Tanggal
                   </th>
-                  <th scope="col" className="px-4 py-3">
-                    <span className="sr-only">Actions</span>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Aksi
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {loading ? (
                   <tr>
-                    <td colSpan="7" className="px-4 py-3 text-center">
-                      Loading...
+                    <td colSpan="8" className="px-4 py-12 text-center">
+                      <div className="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
+                        <div className="w-5 h-5 border-2 border-gray-300 border-t-primary-600 rounded-full animate-spin"></div>
+                        Memuat data...
+                      </div>
                     </td>
                   </tr>
-                ) : transactions.length > 0 ? (
-                  transactions.map((transaction, index) => (
+                ) : filteredTransactions.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="8"
+                      className="px-4 py-12 text-center text-gray-500 dark:text-gray-400"
+                    >
+                      {searchTerm
+                        ? `Tidak ditemukan transaksi dengan "${searchTerm}"`
+                        : "Belum ada data transaksi"}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredTransactions.map((transaction, index) => (
                     <tr
                       key={transaction.id}
-                      className="border-b dark:border-gray-700"
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                     >
-                      <td className="px-4 py-3">{index + 1}</td>{" "}
-                      <th
-                        scope="row"
-                        className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                      >
-                        {transaction.order_number}
-                      </th>
-                      <td className="px-4 py-3">
-                        {getBookTitle(transaction.book_id)}
+                      <td className="px-4 py-4 text-gray-500 dark:text-gray-400">
+                        {index + 1}
                       </td>
-                      <td className="px-4 py-3">{transaction.quantity}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-4">
+                        <span className="font-mono text-xs font-medium text-gray-900 dark:text-white">
+                          {transaction.order_number}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-gray-900 dark:text-white">
+                            {transaction.customer?.name || `User #${transaction.customer_id}`}
+                          </span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {transaction.customer?.email || "-"}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-gray-700 dark:text-gray-300">
+                        {transaction.book?.title || "Unknown Book"}
+                      </td>
+                      <td className="px-4 py-4 text-center">
+                        <span className="inline-flex items-center text-slate-800 dark:text-gray-200 justify-center min-w-8 px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 rounded">
+                          {transaction.quantity}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-right font-semibold text-gray-900 dark:text-white">
                         {formatPrice(transaction.total_amount)}
                       </td>
-                      <td className="px-4 py-3">{transaction.user_id}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-4 text-gray-500 dark:text-gray-400 text-xs">
                         {formatDate(transaction.created_at)}
                       </td>
-                      <td className="px-4 py-3 flex items-center justify-end relative">
+                      <td className="px-4 py-4 text-center">
                         <button
-                          id={`dropdown-button-${transaction.id}`}
-                          data-dropdown-toggle={`dropdown-${transaction.id}`}
-                          className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
-                          type="button"
-                          onClick={() => toggleDropdown(transaction.id)}
+                          onClick={() =>
+                            setActiveDetail(
+                              activeDetail === transaction.id
+                                ? null
+                                : transaction.id,
+                            )
+                          }
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary-600 bg-primary-50 dark:bg-primary-900/30 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/50 transition-colors"
                         >
                           <svg
-                            className="w-5 h-5"
-                            aria-hidden="true"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
                           >
-                            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
                           </svg>
+                          Detail
                         </button>
 
-                        {openDropdownId === transaction.id && (
+                        {/* Detail Modal/Popup */}
+                        {activeDetail === transaction.id && (
                           <div
-                            id="transaction-dropdown"
-                            className="absolute right-0 mt-2 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                            style={{ top: "100%", right: "0" }}
+                            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                            onClick={() => setActiveDetail(null)}
                           >
-                            <ul
-                              className="py-1 text-sm text-gray-700 dark:text-gray-200"
-                              aria-labelledby={`dropdown-button-${transaction.id}`}
+                            <div
+                              className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full mx-4 shadow-xl"
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              <li>
+                              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                  Detail Transaksi
+                                </h3>
                                 <button
-                                  onClick={() => {
-                                    console.log("View details:", transaction);
-                                    toggleDropdown(null);
-                                  }}
-                                  className="block w-full text-left py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                                  onClick={() => setActiveDetail(null)}
+                                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                 >
-                                  View Details
+                                  <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M6 18L18 6M6 6l12 12"
+                                    />
+                                  </svg>
                                 </button>
-                              </li>
-                            </ul>
+                              </div>
+                              <div className="p-4 space-y-3">
+                                {/* Customer Info Section */}
+                                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 mb-2">
+                                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                                    <svg
+                                      className="w-4 h-4"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                      />
+                                    </svg>
+                                    Informasi Customer
+                                  </h4>
+                                  <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-500 dark:text-gray-400">
+                                        Nama
+                                      </span>
+                                      <span className="font-medium text-gray-900 dark:text-white">
+                                        {transaction.customer?.name || `User #${transaction.customer_id}`}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-500 dark:text-gray-400">
+                                        Email
+                                      </span>
+                                      <span className="text-gray-900 dark:text-white">
+                                        {transaction.customer?.email || "-"}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-500 dark:text-gray-400">
+                                        User ID
+                                      </span>
+                                      <span className="font-mono text-xs text-gray-900 dark:text-white">
+                                        #{transaction.customer_id}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Book Info Section */}
+                                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 mb-2">
+                                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                                    <svg
+                                      className="w-4 h-4"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                      />
+                                    </svg>
+                                    Informasi Buku
+                                  </h4>
+                                  <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-500 dark:text-gray-400">
+                                        Judul Buku
+                                      </span>
+                                      <span className="text-gray-900 dark:text-white">
+                                        {transaction.book?.title || "Unknown Book"}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-500 dark:text-gray-400">
+                                        Penulis
+                                      </span>
+                                      <span className="text-gray-900 dark:text-white">
+                                        {transaction.book?.author?.name || "-"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Transaction Info Section */}
+                                <div className="space-y-2">
+                                  <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                    <span className="text-gray-500 dark:text-gray-400">
+                                      Order Number
+                                    </span>
+                                    <span className="font-mono text-sm font-medium text-gray-900 dark:text-white">
+                                      {transaction.order_number}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                    <span className="text-gray-500 dark:text-gray-400">
+                                      Quantity
+                                    </span>
+                                    <span className="text-gray-900 dark:text-white">
+                                      {transaction.quantity}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                    <span className="text-gray-500 dark:text-gray-400">
+                                      Harga Satuan
+                                    </span>
+                                    <span className="text-gray-900 dark:text-white">
+                                      {formatPrice(
+                                        transaction.total_amount /
+                                          transaction.quantity,
+                                      )}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                    <span className="text-gray-500 dark:text-gray-400">
+                                      Total Harga
+                                    </span>
+                                    <span className="font-semibold text-primary-600 dark:text-primary-400">
+                                      {formatPrice(transaction.total_amount)}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between py-2">
+                                    <span className="text-gray-500 dark:text-gray-400">
+                                      Tanggal Transaksi
+                                    </span>
+                                    <span className="text-gray-900 dark:text-white text-sm">
+                                      {formatDate(transaction.created_at)}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+                                <button
+                                  onClick={() => setActiveDetail(null)}
+                                  className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors"
+                                >
+                                  Tutup
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         )}
                       </td>
                     </tr>
                   ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="px-4 py-3 text-center">
-                      Data tidak ditemukan
-                    </td>
-                  </tr>
                 )}
               </tbody>
             </table>
           </div>
+
+          <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Menampilkan{" "}
+                <span className="font-medium">
+                  {filteredTransactions.length}
+                </span>{" "}
+                dari <span className="font-medium">{transactions.length}</span>{" "}
+                transaksi
+              </p>
+              {searchTerm &&
+                filteredTransactions.length !== transactions.length && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400"
+                  >
+                    Clear filter
+                  </button>
+                )}
+            </div>
+          </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

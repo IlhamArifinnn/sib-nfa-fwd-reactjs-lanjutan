@@ -20,6 +20,7 @@ import AdminUsers from "./pages/admin/users";
 import AdminTransactions from "./pages/admin/transactions";
 import ShowBook from "./pages/public/books/show";
 import { ThemeProvider } from "./context/ThemeContext";
+import Contact from "./pages/public/contact";
 
 function App() {
   return (
@@ -29,6 +30,8 @@ function App() {
         <Route element={<PublicLayout />}>
           <Route index element={<Home />} />
           <Route path="/tentang" element={<About />} />
+          <Route path="/kontak" element={<Contact />} />
+
 
           <Route path="books">
             <Route index element={<Books />} />

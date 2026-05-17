@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+// src/pages/admin/genres/index.jsx
+import { useEffect, useState, useRef } from "react";
 import { getGenres, deleteGenre } from "../../../_services/genres";
 import { Link } from "react-router";
 
 export default function AdminGenres() {
   const [genres, setGenres] = useState([]);
-  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchGenres();
@@ -23,180 +25,224 @@ export default function AdminGenres() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus genre ini?")) {
+  const handleDelete = async (id, name) => {
+    if (window.confirm(`Hapus genre "${name}"?`)) {
       try {
         await deleteGenre(id);
         setGenres(genres.filter((g) => g.id !== id));
-        setOpenDropdownId(null);
+        setActiveDropdown(null);
       } catch (error) {
         console.error("Error deleting genre:", error);
+        alert("Gagal menghapus genre");
       }
     }
   };
 
-  const toggleDropdown = (id) => {
-    setOpenDropdownId((prevId) => (prevId === id ? null : id));
-  };
+  const filteredGenres = genres.filter((genre) =>
+    genre.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   return (
-    <>
-      <section className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
-        <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
-            <div className="w-full md:w-1/2">
-              <form className="flex items-center">
-                <label htmlFor="simple-search" className="sr-only">
-                  Search
-                </label>
-                <div className="relative w-full">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg
-                      aria-hidden="true"
-                      className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    id="simple-search"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
-                    placeholder="Search"
-                    required=""
-                  />
-                </div>
-              </form>
-            </div>
-            <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-              <Link
-                to={"/admin/genres/create"}
-                className="flex items-center justify-center text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-indigo-600 dark:hover:bg-indigo-700 focus:outline-none dark:focus:ring-indigo-800"
+    <section className="bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 min-h-screen">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Manajemen Genre
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Kelola kategori genre buku
+          </p>
+        </div>
+
+        {/* Actions Bar */}
+        <div className="bg-white dark:bg-gray-800 rounded-t-xl border border-gray-200 dark:border-gray-700 p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="relative flex-1 max-w-md">
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  className="h-3.5 w-3.5 mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                >
-                  <path
-                    clipRule="evenodd"
-                    fillRule="evenodd"
-                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                  />
-                </svg>
-                Tambah Genre
-              </Link>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              <input
+                type="text"
+                placeholder="Cari genre..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
             </div>
+            <Link
+              to="/admin/genres/create"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Tambah Genre
+            </Link>
           </div>
+        </div>
+
+        {/* Table */}
+        <div className="bg-white dark:bg-gray-800 rounded-b-xl border border-t-0 border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 dark:bg-gray-700/50">
                 <tr>
-                  <th scope="col" className="px-4 py-3">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    #
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                     Nama Genre
                   </th>
-                  <th scope="col" className="px-4 py-3">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                     Deskripsi
                   </th>
-                  <th scope="col" className="px-4 py-3">
-                    <span className="sr-only">Actions</span>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Aksi
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {loading ? (
                   <tr>
-                    <td colSpan="3" className="px-4 py-3 text-center">
-                      Loading...
+                    <td
+                      colSpan="4"
+                      className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-5 h-5 border-2 border-gray-300 border-t-primary-600 rounded-full animate-spin"></div>
+                        Memuat data...
+                      </div>
                     </td>
                   </tr>
-                ) : genres.length > 0 ? (
-                  genres.map((genre) => (
+                ) : filteredGenres.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="4"
+                      className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
+                    >
+                      {searchTerm
+                        ? `Tidak ditemukan genre dengan nama "${searchTerm}"`
+                        : "Belum ada data genre"}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredGenres.map((genre, index) => (
                     <tr
                       key={genre.id}
-                      className="border-b dark:border-gray-700"
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                     >
-                      <th
-                        scope="row"
-                        className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                      >
-                        {genre.name}
-                      </th>
-                      <td className="px-4 py-3">{genre.description || "-"}</td>
-                      <td className="px-4 py-3 flex items-center justify-end relative">
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                        {index + 1}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900 dark:text-white">
+                            {genre.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
+                        {genre.description || "-"}
+                      </td>
+                      <td className="px-6 py-4 text-right relative">
                         <button
-                          id={`dropdown-button-${genre.id}`}
-                          data-dropdown-toggle={`dropdown-${genre.id}`}
-                          className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
-                          type="button"
-                          onClick={() => toggleDropdown(genre.id)}
+                          onClick={() =>
+                            setActiveDropdown(
+                              activeDropdown === genre.id ? null : genre.id,
+                            )
+                          }
+                          className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                         >
                           <svg
                             className="w-5 h-5"
-                            aria-hidden="true"
                             fill="currentColor"
                             viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg"
                           >
-                            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                           </svg>
                         </button>
 
-                        {openDropdownId === genre.id && (
-                          <div
-                            id="genre-dropdown"
-                            className="absolute right-0 mt-2 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                            style={{ top: "100%", right: "0" }}
-                          >
-                            <ul
-                              className="py-1 text-sm text-gray-700 dark:text-gray-200"
-                              aria-labelledby={`dropdown-button-${genre.id}`}
+                        {activeDropdown === genre.id && (
+                          <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10 overflow-hidden">
+                            <Link
+                              to={`/admin/genres/edit/${genre.id}`}
+                              className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                              onClick={() => setActiveDropdown(null)}
                             >
-                              <li>
-                                <Link
-                                  to={`/admin/genres/edit/${genre.id}`}
-                                  className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                                >
-                                  Edit
-                                </Link>
-                              </li>
-                            </ul>
-                            <div className="py-1">
-                              <button
-                                onClick={() => {
-                                  handleDelete(genre.id);
-                                }}
-                                className="block w-full text-left py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
                               >
-                                Hapus
-                              </button>
-                            </div>
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
+                              </svg>
+                              Edit
+                            </Link>
+                            <button
+                              onClick={() => handleDelete(genre.id, genre.name)}
+                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                              Hapus
+                            </button>
                           </div>
                         )}
                       </td>
                     </tr>
                   ))
-                ) : (
-                  <tr>
-                    <td colSpan="3" className="px-4 py-3 text-center">
-                      Data tidak ditemukan
-                    </td>
-                  </tr>
                 )}
               </tbody>
             </table>
           </div>
+
+          <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Menampilkan{" "}
+              <span className="font-medium">{filteredGenres.length}</span> dari{" "}
+              <span className="font-medium">{genres.length}</span> genre
+            </p>
+          </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }
