@@ -1,8 +1,6 @@
 /* src/index.css */
 @import url("https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap");
 @import "tailwindcss";
-@import "flowbite-react/plugin/tailwindcss";
-@source "../.flowbite-react/class-list.json";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
