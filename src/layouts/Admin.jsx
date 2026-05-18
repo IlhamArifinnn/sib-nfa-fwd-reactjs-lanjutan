@@ -5,7 +5,6 @@ import ThemeToggle from "../components/ThemeToggle";
 import {
   UserRound,
   Menu,
-  Search,
   BarChart3,
   Users,
   BookOpen,
@@ -260,7 +259,9 @@ export default function AdminLayout() {
                     size={24}
                     className="text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                   />
-                  <span className="ml-3">{isLoggingOut ? "Logging out..." : "Logout"}</span>
+                  <span className="ml-3">
+                    {isLoggingOut ? "Logging out..." : "Logout"}
+                  </span>
                 </button>
               </li>
             </ul>
