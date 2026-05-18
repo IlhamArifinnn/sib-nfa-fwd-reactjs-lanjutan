@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { showBook } from "../../../_services/books";
-import { createTransaction } from "../../../_services/transactions";
+import { useCart } from "../../../context/CartContext";
 
 export default function ShowBook() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -56,6 +57,7 @@ export default function ShowBook() {
     e.preventDefault();
     setSubmitMessage({ type: null, text: "" });
 
+    const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
       navigate("/login");
       return;
@@ -63,26 +65,17 @@ export default function ShowBook() {
 
     try {
       setIsSubmitting(true);
-      const payload = {
-        book_id: id,
-        quantity: parseInt(quantity),
-      };
-      await createTransaction(payload);
+      addToCart(book, parseInt(quantity));
       setSubmitMessage({
         type: "success",
-        text: "✓ Pembelian berhasil! Terima kasih sudah berbelanja.",
+        text: "✓ Buku berhasil ditambahkan ke keranjang!",
       });
       setQuantity(1);
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
     } catch (error) {
-      console.error("Error creating transaction:", error);
+      console.error("Error adding to cart:", error);
       setSubmitMessage({
         type: "error",
-        text:
-          error.response?.data?.message ||
-          "✗ Gagal membuat transaksi. Silakan coba lagi.",
+        text: "✗ Gagal menambahkan ke keranjang.",
       });
     } finally {
       setIsSubmitting(false);
@@ -304,7 +297,7 @@ export default function ShowBook() {
                           Harga satuan:
                         </span>
                         <span className="font-semibold text-gray-900 dark:text-white">
-                          ${parseFloat(book.price).toFixed(2)}
+                          Rp{parseFloat(book.price).toLocaleString("id-ID")}
                         </span>
                       </div>
                       <div className="flex justify-between items-center border-t border-gray-200 dark:border-gray-700 pt-2">
@@ -312,7 +305,13 @@ export default function ShowBook() {
                           Total:
                         </span>
                         <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">
-                          ${(parseFloat(book.price) * quantity).toFixed(2)}
+                          Rp
+                          {(parseFloat(book.price) * quantity).toLocaleString(
+                            "id-ID",
+                            {
+                              minimumFractionDigits: 0,
+                            },
+                          )}
                         </span>
                       </div>
                     </div>
@@ -365,7 +364,7 @@ export default function ShowBook() {
                             d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                           />
                         </svg>
-                        Beli Sekarang
+                        Tambahkan ke Keranjang
                       </>
                     )}
                   </button>

@@ -21,16 +21,20 @@ import AdminTransactions from "./pages/admin/transactions";
 import ShowBook from "./pages/public/books/show";
 import { ThemeProvider } from "./context/ThemeContext";
 import Contact from "./pages/public/contact";
+import { CartProvider } from "./context/CartContext";
+import Cart from "./pages/public/cart";
 
 function App() {
   return (
     <ThemeProvider>
-      <Routes>
+      <CartProvider>
+        <Routes>
         {/* public */}
         <Route element={<PublicLayout />}>
           <Route index element={<Home />} />
           <Route path="/tentang" element={<About />} />
           <Route path="/kontak" element={<Contact />} />
+          <Route path="/cart" element={<Cart />} />
 
 
           <Route path="books">
@@ -73,7 +77,8 @@ function App() {
             <Route index element={<AdminTransactions />} />
           </Route>
         </Route>
-      </Routes>
+        </Routes>
+      </CartProvider>
     </ThemeProvider>
   );
 }

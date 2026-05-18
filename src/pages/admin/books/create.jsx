@@ -57,7 +57,16 @@ export default function BookCreate() {
       navigate("/admin/books");
     } catch (error) {
       console.log(error);
-      alert("Failed to create book. Please try again.");
+      if (error.response && error.response.data && error.response.data.errors) {
+        const errors = error.response.data.errors;
+        let errorMessage = "Failed to create book:\n";
+        for (const key in errors) {
+          errorMessage += `- ${errors[key].join(", ")}\n`;
+        }
+        alert(errorMessage);
+      } else {
+        alert("Failed to create book. Please try again.");
+      }
     }
   };
 

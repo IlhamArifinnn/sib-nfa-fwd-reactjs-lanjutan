@@ -54,7 +54,7 @@ export default function AdminTransactions() {
         .includes(searchTerm.toLowerCase()) ||
       transaction.customer?.name
         ?.toLowerCase()
-        .includes(searchTerm.toLowerCase())
+        .includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -185,7 +185,8 @@ export default function AdminTransactions() {
                       <td className="px-4 py-4">
                         <div className="flex flex-col">
                           <span className="font-medium text-gray-900 dark:text-white">
-                            {transaction.customer?.name || `User #${transaction.customer_id}`}
+                            {transaction.customer?.name ||
+                              `User #${transaction.customer_id}`}
                           </span>
                           <span className="text-xs text-gray-500 dark:text-gray-400">
                             {transaction.customer?.email || "-"}
@@ -297,7 +298,8 @@ export default function AdminTransactions() {
                                         Nama
                                       </span>
                                       <span className="font-medium text-gray-900 dark:text-white">
-                                        {transaction.customer?.name || `User #${transaction.customer_id}`}
+                                        {transaction.customer?.name ||
+                                          `User #${transaction.customer_id}`}
                                       </span>
                                     </div>
                                     <div className="flex justify-between">
@@ -343,7 +345,8 @@ export default function AdminTransactions() {
                                         Judul Buku
                                       </span>
                                       <span className="text-gray-900 dark:text-white">
-                                        {transaction.book?.title || "Unknown Book"}
+                                        {transaction.book?.title ||
+                                          "Unknown Book"}
                                       </span>
                                     </div>
                                     <div className="flex justify-between">
