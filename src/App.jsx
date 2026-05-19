@@ -29,54 +29,53 @@ function App() {
     <ThemeProvider>
       <CartProvider>
         <Routes>
-        {/* public */}
-        <Route element={<PublicLayout />}>
-          <Route index element={<Home />} />
-          <Route path="/tentang" element={<About />} />
-          <Route path="/kontak" element={<Contact />} />
-          <Route path="/cart" element={<Cart />} />
+          {/* public */}
+          <Route element={<PublicLayout />}>
+            <Route index element={<Home />} />
+            <Route path="/tentang" element={<About />} />
+            <Route path="/kontak" element={<Contact />} />
+            <Route path="/cart" element={<Cart />} />
 
-
-          <Route path="books">
-            <Route index element={<Books />} />
-            <Route path="show/:id" element={<ShowBook />} />
-          </Route>
-        </Route>
-
-        {/* auth */}
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
-
-        {/* admin */}
-        <Route path="admin" element={<AdminLayout />}>
-          <Route index element={<Dashboard />} />
-
-          <Route path="books">
-            <Route index element={<AdminBooks />} />
-            <Route path="create" element={<BookCreate />} />
-            <Route path="edit/:id" element={<BookEdit />} />
+            <Route path="books">
+              <Route index element={<Books />} />
+              <Route path="show/:id" element={<ShowBook />} />
+            </Route>
           </Route>
 
-          <Route path="genres">
-            <Route index element={<AdminGenres />} />
-            <Route path="create" element={<CreateGenre />} />
-            <Route path="edit/:id" element={<EditGenre />} />
-          </Route>
+          {/* auth */}
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
 
-          <Route path="authors">
-            <Route index element={<AdminAuthors />} />
-            <Route path="create" element={<CreateAuthor />} />
-            <Route path="edit/:id" element={<EditAuthor />} />
-          </Route>
+          {/* admin */}
+          <Route path="admin" element={<AdminLayout />}>
+            <Route index element={<Dashboard />} />
 
-          <Route path="users">
-            <Route index element={<AdminUsers />} />
-          </Route>
+            <Route path="books">
+              <Route index element={<AdminBooks />} />
+              <Route path="create" element={<BookCreate />} />
+              <Route path="edit/:id" element={<BookEdit />} />
+            </Route>
 
-          <Route path="transactions">
-            <Route index element={<AdminTransactions />} />
+            <Route path="genres">
+              <Route index element={<AdminGenres />} />
+              <Route path="create" element={<CreateGenre />} />
+              <Route path="edit/:id" element={<EditGenre />} />
+            </Route>
+
+            <Route path="authors">
+              <Route index element={<AdminAuthors />} />
+              <Route path="create" element={<CreateAuthor />} />
+              <Route path="edit/:id" element={<EditAuthor />} />
+            </Route>
+
+            <Route path="users">
+              <Route index element={<AdminUsers />} />
+            </Route>
+
+            <Route path="transactions">
+              <Route index element={<AdminTransactions />} />
+            </Route>
           </Route>
-        </Route>
         </Routes>
       </CartProvider>
     </ThemeProvider>
